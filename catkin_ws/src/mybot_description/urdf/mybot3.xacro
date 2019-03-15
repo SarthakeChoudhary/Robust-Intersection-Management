@@ -1,0 +1,356 @@
+<?xml version="1.0"?>
+<robot name="mybot2" xmlns:xacro="http://www.ros.org/wiki/xacro">
+        <!-- Put here the robot description -->
+
+<xacro:property name="PI" value="3.1415926535897931"/>
+
+<xacro:property name="chassisHeight" value="0.1"/>
+<xacro:property name="chassisLength" value="0.4"/>
+<xacro:property name="chassisWidth" value="0.2"/>
+<xacro:property name="chassisMass" value="50"/>
+
+<xacro:property name="casterRadius" value="0.05"/>
+<xacro:property name="casterMass" value="5"/>
+
+<xacro:property name="wheelWidth" value="0.05"/>
+<xacro:property name="wheelRadius" value="0.1"/>
+<xacro:property name="wheelPos" value="0.2"/>
+<xacro:property name="wheelMass" value="5"/>
+
+<xacro:property name="cameraSize" value="0.05"/>
+<xacro:property name="cameraMass" value="0.1"/>
+<xacro:property name="tY" value="-1"/>
+<xacro:property name="lY" value="-1"/>
+
+ <xacro:include filename="$(find mybot_description)/urdf/materials.xacro" />
+ <xacro:include filename="$(find mybot_description)/urdf/macros.xacro" />
+
+<link name='chassis2'>
+  <collision> 
+    <origin xyz="0 0 ${wheelRadius}" rpy="0 0 0"/> 
+    <geometry> 
+      <box size="${chassisLength} ${chassisWidth} ${chassisHeight}"/> 
+    </geometry> 
+  </collision>
+  <visual> 
+    <origin xyz="0 0 ${wheelRadius}" rpy="0 0 0"/> 
+    <geometry> 
+      <box size="${chassisLength} ${chassisWidth} ${chassisHeight}"/> 
+    </geometry> 
+    <material name="orange"/>
+  </visual>
+  <inertial> 
+    <origin xyz="0 0 ${wheelRadius}" rpy="0 0 0"/> 
+    <mass value="${chassisMass}"/> 
+    <box_inertia m="${chassisMass}" x="${chassisLength}" y="${chassisWidth}" z="${chassisHeight}"/>
+  </inertial>
+</link>
+
+<joint name="fixed" type="fixed">
+  <parent link="chassis2"/>
+  <child link="caster_wheel2"/>
+</joint>
+
+<link name="caster_wheel2">
+  <collision>
+    <origin xyz="${casterRadius-chassisLength/2} 0 ${casterRadius-chassisHeight+wheelRadius}" rpy="0 0 0"/>
+    <geometry>
+      <sphere radius="${casterRadius}"/>
+    </geometry>
+  </collision>
+  
+  <visual>
+    <origin xyz="${casterRadius-chassisLength/2} 0 ${casterRadius-chassisHeight+wheelRadius}" rpy="0 0 0"/>
+    <geometry>
+      <sphere radius="${casterRadius}"/>
+    </geometry>
+    <material name="red"/>
+  </visual>
+
+  <inertial>
+    <origin xyz="${casterRadius-chassisLength/2} 0 ${casterRadius-chassisHeight+wheelRadius}" rpy="0 0 0"/>
+    <mass value="${casterMass}"/>
+    <sphere_inertia m="${casterMass}" r="${casterRadius}"/>
+  </inertial>
+</link>
+
+
+
+
+    <link name="left2_wheel">
+      <collision>
+        <origin xyz="0 0 0" rpy="0 ${PI/2} ${PI/2}" />
+        <geometry>
+          <cylinder length="${wheelWidth}" radius="${wheelRadius}"/>
+        </geometry>
+      </collision>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 ${PI/2} ${PI/2}" />
+        <geometry>
+          <cylinder length="${wheelWidth}" radius="${wheelRadius}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 ${PI/2} ${PI/2}" />
+        <mass value="${wheelMass}"/>
+        <cylinder_inertia m="${wheelMass}" r="${wheelRadius}" h="${wheelWidth}"/>
+      </inertial>
+    </link>
+
+    <gazebo reference="left2_wheel">
+      <mu1 value="1.0"/>
+      <mu2 value="1.0"/>
+      <kp  value="10000000.0" />
+      <kd  value="1.0" />
+      <fdir1 value="1 0 0"/>
+      <material>Gazebo/Black</material>
+    </gazebo>
+
+
+    <joint name="left2_wheel_hinge" type="continuous">
+      <parent link="chassis2"/>
+      <child link="left2_wheel"/>
+    <origin xyz="${-wheelPos+chassisLength/2} ${lY*wheelWidth/2+lY*chassisWidth/2} ${wheelRadius}" rpy="0 0 0" />
+      <axis xyz="0 1 0" rpy="0 0 0" />
+      <limit effort="10000" velocity="10000"/>
+      <joint_properties damping="0.0" friction="0.0"/>
+    </joint>
+
+
+    <transmission name="left2_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="left2_wheel_hinge">
+        <hardwareInterface>EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="left2Motor">
+        <hardwareInterface>EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>10</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+
+    <link name="right2_wheel">
+      <collision>
+        <origin xyz="0 0 0" rpy="0 ${PI/2} ${PI/2}" />
+        <geometry>
+          <cylinder length="${wheelWidth}" radius="${wheelRadius}"/>
+        </geometry>
+      </collision>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 ${PI/2} ${PI/2}" />
+        <geometry>
+          <cylinder length="${wheelWidth}" radius="${wheelRadius}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 ${PI/2} ${PI/2}" />
+        <mass value="${wheelMass}"/>
+        <cylinder_inertia m="${wheelMass}" r="${wheelRadius}" h="${wheelWidth}"/>
+      </inertial>
+    </link>
+
+    <gazebo reference="right2_wheel">
+      <mu1 value="1.0"/>
+      <mu2 value="1.0"/>
+      <kp  value="10000000.0" />
+      <kd  value="1.0" />
+      <fdir1 value="1 0 0"/>
+      <material>Gazebo/Black</material>
+    </gazebo>
+
+
+    <joint name="right2_wheel_hinge" type="continuous">
+      <parent link="chassis2"/>
+      <child link="right2_wheel"/>
+    <origin xyz="${-wheelPos+chassisLength/2} ${tY*wheelWidth/2+tY*chassisWidth/2} ${wheelRadius}" rpy="0 0 0" />
+      <axis xyz="0 1 0" rpy="0 0 0" />
+      <limit effort="10000" velocity="10000"/>
+      <joint_properties damping="0.0" friction="0.0"/>
+    </joint>
+
+
+    <transmission name="right2_trans">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="right2_wheel_hinge">
+        <hardwareInterface>EffortJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="right2Motor">
+        <hardwareInterface>EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>10</mechanicalReduction>
+      </actuator>
+    </transmission>
+
+
+
+
+<link name="camera2">
+  <collision>
+    <origin xyz="0 0 ${wheelRadius}" rpy="0 0 0"/>
+    <geometry>
+      <box size="${cameraSize} ${cameraSize} ${cameraSize}"/>
+    </geometry>
+  </collision>
+
+  <visual>
+    <origin xyz="0 0 ${wheelRadius}" rpy="0 0 0"/>
+    <geometry>
+      <box size="${cameraSize} ${cameraSize} ${cameraSize}"/>
+    </geometry>
+    <material name="blue"/>
+  </visual>
+
+  <inertial>
+    <mass value="${cameraMass}" />
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <box_inertia m="${cameraMass}" x="${cameraSize}" y="${cameraSize}" z="${cameraSize}" />
+  </inertial>
+</link>
+
+
+  <joint name="camera_joint2" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0.2 0 0" rpy="0 0 0"/>
+    <parent link="chassis2"/>
+    <child link="camera2"/>
+  </joint>
+
+  <!-- Hokuyo Laser -->
+  <link name="hokuyo2">
+    <collision>
+      <origin xyz="0 0 ${wheelRadius}" rpy="0 0 0"/>
+      <geometry>
+    <box size="0.1 0.1 0.1"/>
+      </geometry>
+    </collision>
+
+    <visual>
+      <origin xyz="0 0 ${wheelRadius}" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://mybot_description/meshes/hokuyo.dae"/>
+      </geometry>
+    </visual>
+
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+</link>
+
+  <joint name="hokuyo_joint2" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="0.15 0 .1" rpy="0 0 0"/>
+    <parent link="chassis2"/>
+    <child link="hokuyo2"/>
+  </joint>
+
+
+
+  <gazebo>
+    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+      <legacyMode>false</legacyMode>
+      <alwaysOn>true</alwaysOn>
+      <updateRate>20</updateRate>
+      <leftJoint>left2_wheel_hinge</leftJoint>
+      <rightJoint>right2_wheel_hinge</rightJoint>
+      <wheelSeparation>0.4</wheelSeparation>
+      <wheelDiameter>0.1</wheelDiameter>
+      <torque>20</torque>
+      <commandTopic>cmd_vel2</commandTopic>
+      <odometryTopic>odom2</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <robotBaseFrame>chassis2</robotBaseFrame>
+    </plugin>
+  </gazebo>
+
+  <gazebo reference="chassis2">
+      <material>Gazebo/Orange</material>
+    </gazebo>
+
+  <gazebo reference="caster_wheel2">
+    <mu1>0.0</mu1>
+    <mu2>0.0</mu2>
+    <material>Gazebo/Red</material>
+  </gazebo>
+
+  <gazebo reference="camera2">
+    <material>Gazebo/Green</material>
+    <sensor type="camera" name="camera1">
+      <update_rate>30.0</update_rate>
+      <camera name="head2">
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>800</width>
+          <height>800</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>mybot/camera2</cameraName>
+        <imageTopicName>image_raw2</imageTopicName>
+        <cameraInfoTopicName>camera_info2</cameraInfoTopicName>
+        <frameName>camera2</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+   <!-- hokuyo -->
+  <gazebo reference="hokuyo2">
+    <sensor type="ray" name="head_hokuyo_sensor">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>true</visualize>
+      <update_rate>40</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>720</samples>
+            <resolution>1</resolution>
+            <min_angle>-1.570796</min_angle>
+            <max_angle>1.570796</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.10</min>
+          <max>30.0</max>
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <!-- Noise parameters based on published spec for Hokuyo laser
+               achieving "+-30mm" accuracy at range < 10m.  A mean of 0.0m and
+               stddev of 0.01m will put 99.7% of samples within 0.03m of the true
+               reading. -->
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
+        <topicName>/mybot/laser/scan2</topicName>
+        <frameName>hokuyo2</frameName>
+      </plugin>
+    </sensor>
+</gazebo>
+
+
+
+
+</robot>
+

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>     
+   <arg name="robot_name"/>
+   <arg name="init_pose"/>
+   <arg name="bot_no"/>
+
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find mybot_description)/urdf/mybot$(arg bot_no).xacro'"/>
+
+    <node name="mybot_spawn" pkg="gazebo_ros" type="spawn_model"
+     args="$(arg init_pose) -urdf -param /robot_description$(arg bot_no) -model $(arg robot_name)"
+     respawn="false" output="screen" />
+ 
+  <!-- send fake joint values--> 
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="use_gui" value="False"/>
+  </node>
+
+  <!-- Combine joint values-->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
+
+    <!-- The odometry estimator, throttling, fake laser etc. go here -->
+    <!-- All the stuff as from usual robot launch file -->
+</launch>

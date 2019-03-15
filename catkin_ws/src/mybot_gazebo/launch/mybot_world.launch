@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <arg name="world" default="empty"/> 
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>  
+  
+  <include file="$(find mybot_gazebo)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find mybot_gazebo)/worlds/mybot.world"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
+
+  <include file="$(find mybot_description)/launch/mybot_rviz.launch">
+  </include>
+  
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find mybot_description)/urdf/mybot.xacro'"/>
+  <param name="robot_description2" command="$(find xacro)/xacro.py '$(find mybot_description)/urdf/mybot2.xacro'"/>
+
+  <!-- BEGIN ROBOT 1--> 
+  <group ns="robot1">
+    <param name="tf_prefix" value="robot1_tf" />
+    <include file="$(find mybot_gazebo)/launch/Multi_robot.launch" >
+      <arg name="init_pose" value="-x -3 -y 1 -z 0" />
+      <arg name="robot_name"  value="Robot1" />
+      <arg name="bot_no" value=""/>
+    </include>
+  </group>
+ 
+  <!-- BEGIN ROBOT 2-->
+  <group ns="robot2">
+    <param name="tf_prefix" value="robot2_tf" />
+    <include file="$(find mybot_gazebo)/launch/Multi_robot.launch" >
+      <arg name="init_pose" value="-x 1 -y 1 -z 0" />
+      <arg name="robot_name"  value="Robot2" />
+      <arg name="bot_no" value="2"/>
+    </include>
+  </group>
+
+  <node name="rqt_robot_steering" pkg="rqt_robot_steering" type="rqt_robot_steering">
+    <param name="default_topic" value="robot2/cmd_vel"/>
+  </node>
+
+</launch>
