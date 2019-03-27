@@ -10,7 +10,9 @@
     <param name="ymin" value="-20"/>
     <param name="ymax" value="20"/>
     <remap from="scan" to="mybot/laser/scan"/>
-    <param name="base_frame" value="chassis" />
+    <param name="base_frame" value="robot1_tf/chassis" />
+    <param name="odom_frame" value="robot1_tf/odom" />
+
 
     <param name="linearUpdate" value="0.5"/>
     <param name="angularUpdate" value="0.436"/>

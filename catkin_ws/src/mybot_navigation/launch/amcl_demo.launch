@@ -2,23 +2,27 @@
 <launch>
   <master auto="start"/>
 
-  <!-- Map server
-  <arg name="map_file" default="$(find mybot_navigation)/maps/test_map.yaml"/>
+  <!-- Move Base -->
+  <arg name="base_global_planner" default="navfn/NavfnROS"/>
+  <arg name="base_local_planner" default="dwa_local_planner/DWAPlannerROS"/>
+
+  <!-- Map server -->
+  <arg name="map_file" default="$(find mybot_navigation)/maps/intersection_map.yaml"/>
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
--->
-  <!-- Place map frame at odometry frame -->
+ 
+  <!-- Place map frame at odometry frame 
   <node pkg="tf" type="static_transform_publisher" name="map_odom_broadcaster"
-      args="0 0 0 0 0 0 map odom 100"/>
+      args="0 0 0 0 0 0 map robot1_tf/odom 100"/>-->
 
 
 
-  <!-- Localization -->
+  <!-- Localization-->
   <node pkg="amcl" type="amcl" name="amcl" output="screen">
     <remap from="scan" to="mybot/laser/scan"/>
-    <param name="odom_frame_id" value="odom"/>
-    <param name="odom_model_type" value="diff-corrected"/>
-    <param name="base_frame_id" value="chassis"/>
-    <param name="update_min_d" value="0.5"/>
+    <param name="odom_frame_id" value="robot1_tf/odom"/>
+    <param name="odom_model_type" value="diff"/>
+    <param name="base_frame_id" value="robot1_tf/chassis"/>
+     <param name="update_min_d" value="0.5"/>
     <param name="update_min_a" value="1.0"/>
   </node>
 
@@ -28,21 +32,19 @@
 
   <!-- Move base -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <param name="base_global_planner" value="$(arg base_global_planner)"/>
+    <param name="base_local_planner" value="$(arg base_local_planner)"/>  
     <rosparam file="$(find mybot_navigation)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
     <rosparam file="$(find mybot_navigation)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
     <rosparam file="$(find mybot_navigation)/config/local_costmap_params.yaml" command="load" />
     <rosparam file="$(find mybot_navigation)/config/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find mybot_navigation)/config/base_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find mybot_navigation)/config/base_planner.yaml" command="load" />
     
-    <remap from="cmd_vel" to="cmd_vel"/>
-    <remap from="odom" to="odom"/>
+    <remap from="cmd_vel" to="robot1/cmd_vel"/>
+    <remap from="odom" to="robot1/odom"/>
     <remap from="scan" to="mybot/laser/scan"/>
-    <param name="move_base/DWAPlannerROS/yaw_goal_tolerance" value="1.0"/>
-    <param name="move_base/DWAPlannerROS/xy_goal_tolerance" value="1.0"/>
-
-
-
   </node>
+
 
 
 </launch>
